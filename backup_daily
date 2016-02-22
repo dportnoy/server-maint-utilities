@@ -1,15 +1,39 @@
 #!/bin/sh
 set -x #echo on
 
+
+
 #==========
-#==  Make archive of entire source directory
+#==  First copy entire dir.  Keep for incremental comparison.
+#==  Second create compressed archive.
 #==========
 
-PARAMS=zcfp  #  --atime-preserve does not work with this version
-DEST_FILE=~/Backups/Spigot_daily_$(date '+%a').tar.gz
-DEST_PREFIX=~/Backups/Spigot_daily_
-SOURCE_DIR=~/
-SOURCE_FILE=Spigot/
-LOG_FILE=~/Backups/backup_daily.log
+PRODUCTION_DIR="/root/Spigot"
 
-tar $PARAMS   $DEST_FILE  -C $SOURCE_DIR  $SOURCE_FILE 
+BACKUP_DIR="/root/Spigot/Backups"
+DAILY_PREFIX=${BACKUP_DIR}/Spigot_daily_$(date '+%a')
+DAILY_DIR=${DAILY_PREFIX}_dir"
+DAILY_DEST_DIR=${DAILY_PREFIX}_dir/Spigot"
+DAILY_DEST_ARCHIVE=${DAILY_PREFIX}.tar.gz
+
+rm -rf $DAILY_DIR
+mkdir  $DAILY_DIR
+
+cp --archive   $PRODUCTION_DIR   $DAILY_DEST_DIR
+
+tar zcfp   $DAILY_DEST_ARCHIVE   $DAILY_DEST_DIR 
+
+
+
+
+
+
+#==========
+#==  Remove directories older than needed for incremental snapshots
+#==   * 1 day is needed for incremental snapshots
+#==   * Remaining archives take up less space and cycle every 7 days
+#==========
+DAYS_OLD=2
+find ~/Backups/Spigot_daily_*_dir      -maxdepth 0   -mtime +${DAYS_OLD}  
+echo "--- Deleting old directories ---"
+find ~/Backups/Spigot_daily_*_dir      -maxdepth 0   -mtime +${DAYS_OLD} -exec rm -rf {} \; 
