@@ -1,0 +1,29 @@
+#!/bin/sh
+set -x #echo on
+echo "Running hourly backup at $(date +%Y-%m-%d_%H:%M:%S)"
+cd /root/Backups
+
+#=== Save just the changes ===
+PRODUCTION_DIR=/root/Spigot/
+SAVE_HOURLY_DIFF_DIR=/root/Backups/Spigot_hourly_$(date '+%a-%H')/  # Latest changes go here
+LAST_SAVED_DAILY_DIR=/root/Backups/$(ls Spigot_daily_* -dt | head -n1)/  #/root/Backups/Spigot_2016-01-29_22:08:55/
+
+echo "rm -rf $SAVE_HOURLY_DIFF_DIR"  # Remove old dir; New one will be created w/ rsync
+
+
+RSYNC_COMMAND="rsync  --stats --archive --compare-dest=$LAST_SAVED_DAILY_DIR $PRODUCTION_DIR $SAVE_HOURLY_DIFF_DIR"  # To test add --dry_run
+echo $RSYNC_COMMAND  # Just to test
+$RSYNC_COMMAND
+
+
+# Delete empty directories; rsync "compare-dest" creates empty ones even if no files changed
+find $SAVE_HOURLY_DIFF_DIR -depth -type d -empty -delete
+
+
+#=========== Future =========
+#== Consider running rsync only if there have been changes.  Logic...
+#=============================
+# MATCH_COUNT=$(rsync  --stats --archive --dry-run --compare-dest=/root/rsynch_test/saved/ /root/rsynch_test/latest/ /root/rsynch_test/changes/ |  grep "Number of created files: 0\|Number of regular files transferred: 0" | wc -l)
+# 
+# if ["$MATCH_COUNT" = "2"] then  # No changes
+#=============================

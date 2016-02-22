@@ -1,0 +1,10 @@
+#!/bin/sh
+#set -x #echo on
+
+#=== Save just the changes ===
+LATEST_DIR=/root/rsynch_test/latest
+CHANGES_DIR=/root/rsynch_test/changes
+LAST_SAVED_DIR=/root/rsynch_test/saved
+
+echo "rsync -aHxv --progress --dry-run --compare-dest=$LAST_SAVED_DIR $LATEST_DIR $CHANGES_DIR"
+rsync -aHxv --progress --dry-run --compare-dest=$LAST_SAVED_DIR $LATEST_DIR $CHANGES_DIR
