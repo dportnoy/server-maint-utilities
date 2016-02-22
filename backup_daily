@@ -10,10 +10,10 @@ set -x #echo on
 
 PRODUCTION_DIR="/root/Spigot"
 
-BACKUP_DIR="/root/Spigot/Backups"
+BACKUP_DIR="/root/Backups"
 DAILY_PREFIX=${BACKUP_DIR}/Spigot_daily_$(date '+%a')
-DAILY_DIR=${DAILY_PREFIX}_dir"
-DAILY_DEST_DIR=${DAILY_PREFIX}_dir/Spigot"
+DAILY_DIR=${DAILY_PREFIX}_dir
+DAILY_DEST_DIR=${DAILY_PREFIX}_dir/Spigot
 DAILY_DEST_ARCHIVE=${DAILY_PREFIX}.tar.gz
 
 rm -rf $DAILY_DIR
