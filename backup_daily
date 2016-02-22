@@ -1,9 +1,15 @@
 #!/bin/sh
 set -x #echo on
 
-cd /root/Backups
+#==========
+#==  Make archive of entire source directory
+#==========
 
-PRODUCTION_DIR="/root/Spigot"
-DAILY_DIR="Spigot_daily_$(date '+%a')"
+PARAMS=zcfp  #  --atime-preserve does not work with this version
+DEST_FILE=~/Backups/Spigot_daily_$(date '+%a').tar.gz
+DEST_PREFIX=~/Backups/Spigot_daily_
+SOURCE_DIR=~/
+SOURCE_FILE=Spigot/
+LOG_FILE=~/Backups/backup_daily.log
 
-cp --archive $PRODUCTION_DIR $DAILY_DIR
+tar $PARAMS   $DEST_FILE  -C $SOURCE_DIR  $SOURCE_FILE 
