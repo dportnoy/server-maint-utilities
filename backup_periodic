@@ -1,0 +1,75 @@
+#!/bin/sh
+set -x #echo on
+
+
+#==========
+#==  Set values used for daily snapshot 
+#==========
+
+PRODUCTION_DIR="/root/Spigot"
+
+BACKUP_DIR="/root/Backups"
+DAILY_PREFIX=${BACKUP_DIR}/Spigot_daily_$(date '+%a')
+DAILY_DIR=${DAILY_PREFIX}_dir
+DAILY_DEST_DIR=${DAILY_PREFIX}_dir/Spigot
+DAILY_DEST_ARCHIVE=${DAILY_PREFIX}.tar.gz
+
+
+
+#==========
+#== Weekly snapshot
+#==========
+PERIOD_TRIGGER="$((  $(date +%w)  == 0))"
+PERIOD_PREFIX="${BACKUP_DIR}/Spigot_weekly_"
+PERIOD_ARCHIVE="${PERIOD_PREFIX}$(date '+%W').tar.gz"
+PERIOD_SAVE_DAYS=60
+
+
+if [ $PERIOD_TRIGGER = 1 ]; then 
+  # Take snapshot
+  cp -a ${DAILY_DEST_ARCHIVE} ${PERIOD_ARCHIVE}
+
+  # Delete old
+  find $PERIOD_PREFIX*.tar.gz  -mtime +${PERIOD_SAVE_DAYS}  -delete
+fi
+
+
+#==========
+#== Monthly snapshot
+#==========
+PERIOD_TRIGGER="$((  1$(date +%d)  == 101))"  # Prefix 1 to avoid octal
+PERIOD_PREFIX="${BACKUP_DIR}/Spigot_monthly_"
+PERIOD_ARCHIVE="${PERIOD_PREFIX}$(date '+%m').tar.gz"
+PERIOD_SAVE_DAYS=365
+
+
+if [ $PERIOD_TRIGGER = 1 ]; then 
+  # Take snapshot
+  cp -a ${DAILY_DEST_ARCHIVE} ${PERIOD_ARCHIVE}
+
+  # Delete old
+  find $PERIOD_PREFIX*.tar.gz  -mtime +${PERIOD_SAVE_DAYS}  -delete
+fi
+
+
+
+
+
+#==========
+#== Yearly snapshot
+#==========
+PERIOD_TRIGGER="$((  $(date +%m%d)  == 0101))"
+PERIOD_PREFIX="${BACKUP_DIR}/Spigot_yearly"
+PERIOD_ARCHIVE="${PERIOD_PREFIX}.tar.gz"
+PERIOD_SAVE_DAYS=365
+
+
+if [ $PERIOD_TRIGGER = 1 ]; then 
+  # Take snapshot
+  cp -a ${DAILY_DEST_ARCHIVE} ${PERIOD_ARCHIVE}
+
+  # Delete old
+  find $PERIOD_PREFIX*.tar.gz  -mtime +${PERIOD_SAVE_DAYS}  -delete
+fi
+
+
