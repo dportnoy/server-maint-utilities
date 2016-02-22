@@ -5,11 +5,10 @@ cd /root/Backups
 
 #=== Save just the changes ===
 PRODUCTION_DIR=/root/Spigot/
-SAVE_HOURLY_DIFF_DIR=/root/Backups/Spigot_hourly_$(date '+%a-%H')/  # Latest changes go here
-LAST_SAVED_DAILY_DIR=$(ls -dt /root/Backups/Spigot_daily_*/  | head -n1)
+SAVE_HOURLY_DIFF_DIR=/root/Backups/Spigot_hourly_$(date '+%a-%H')_dir/Spigot/  # Latest changes go here
+LAST_SAVED_DAILY_DIR=$(ls -dt /root/Backups/Spigot_daily_*_dir/Spigot/  | head -n1)
 
-echo "rm -rf $SAVE_HOURLY_DIFF_DIR" 
-rm -rf $SAVE_HOURLY_DIFF_DIR  # Remove old dir; New one will be created w/ rsync
+echo "rm -rf $SAVE_HOURLY_DIFF_DIR"  # Remove old dir; New one will be created w/ rsync
 
 
 RSYNC_COMMAND="rsync  --stats --archive --compare-dest=$LAST_SAVED_DAILY_DIR $PRODUCTION_DIR $SAVE_HOURLY_DIFF_DIR"  # To test add --dry_run
@@ -21,17 +20,20 @@ $RSYNC_COMMAND
 find $SAVE_HOURLY_DIFF_DIR -depth -type d -empty -delete
 
 
-
-
-
-#==========
-#==  Remove both directories and files older than certain # of days
+#=========== Future =========
+#=emove both directories and files older than certain # of days
 #==========
 DAYS_OLD=2
 echo "--- The following will be deleted ---"
-find ~/Backups/Spigot_hourly_*      -maxdepth 0   -mtime +${DAYS_OLD}  
+find ~/Backups/Spigot_hourly_*_dir  -maxdepth 0   -mtime +${DAYS_OLD}  
 find ~/Backups/Spigot_hourly_*tar*                -mtime +${DAYS_OLD}  
 echo "--- Deleting ---"
-find ~/Backups/Spigot_hourly_*      -maxdepth 0   -mtime +${DAYS_OLD}  -exec rm -rf {} \;
+find ~/Backups/Spigot_hourly_*_dir  -maxdepth 0   -mtime +${DAYS_OLD}  -exec rm -rf {} \;
 find ~/Backups/Spigot_hourly_*tar*                -mtime +${DAYS_OLD}  -delete
 
+
+#=============================
+# MATCH_COUNT=$(rsync  --stats --archive --dry-run --compare-dest=/root/rsynch_test/saved/ /root/rsynch_test/latest/ /root/rsynch_test/changes/ |  grep "Number of created files: 0\|Number of regular files transferred: 0" | wc -l)
+# 
+# if ["$MATCH_COUNT" = "2"] then  # No changes
+#=============================
