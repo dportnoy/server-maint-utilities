@@ -1,0 +1,9 @@
+#!/bin/sh
+set -x #echo on
+
+cd /root/Backups
+
+PRODUCTION_DIR="/root/Spigot"
+DAILY_DIR="Spigot_daily_$(date '+%a')"
+
+cp --archive $PRODUCTION_DIR $DAILY_DIR

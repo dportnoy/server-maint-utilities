@@ -1,0 +1,19 @@
+#!/bin/sh
+set -x #echo on
+# Params: ($1 = Hourly backup; $2 = Daily backup; $3 = Destination)
+
+HOME_DIR="/root/"
+BACKUP_DIR="/root/Backups/"
+DAILY_BACKUP="${BACKUP_DIR}${1}"  # EX: Backups/Spigot_daily_Fri/
+HOURLY_BACKUP="${BACKUP_DIR}${2}" # EX: /root/Backups/Spigot_hourly_Fri-22/
+RESTORE_DIR="${HOME_DIR}${3}"   # EX: /root/Spigot_restore/
+
+
+# First clear restore location; Then copy daily and hourly in sequence 
+echo rf -rf $RESTORE_DIR
+rsync --dry-run --verbose --archive --stats  $DAILY_BACKUP   $RESTORE_DIR
+rsync --dry-run --verbose --archive --stats  $HOURLY_BACKUP  $RESTORE_DIR
+
+# Swap Production directory
+# mv /root/Spiggot /root/Spigot/Backups/Spigot_snapshot_2016-02-19_23:27:30
+# mv $RESTORE_DIR /root/Spigot
