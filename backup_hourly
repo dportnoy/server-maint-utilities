@@ -4,14 +4,16 @@ echo "Running hourly backup at $(date +%Y-%m-%d_%H:%M:%S)"
 cd /root/Backups
 
 #=== Save just the changes ===
-PRODUCTION_DIR=/root/Spigot/
-SAVE_HOURLY_DIFF_DIR=/root/Backups/Spigot_hourly_$(date '+%a-%H')_dir/Spigot/  # Latest changes go here
-LAST_SAVED_DAILY_DIR=$(ls -dt /root/Backups/Spigot_daily_*_dir/Spigot/  | head -n1)
+PRODUCTION_DIR=/root/Spigot
+SAVE_HOURLY_DIFF_BASE=/root/Backups/Spigot_hourly_$(date '+%a-%H')_dir
+SAVE_HOURLY_DIFF_DIR=${SAVE_HOURLY_DIFF_BASE}/Spigot  # Latest changes go here
+LAST_SAVED_DAILY_DIR=$(ls -dt /root/Backups/Spigot_daily_*_dir/Spigot  | head -n1)
 
-echo "rm -rf $SAVE_HOURLY_DIFF_DIR"  # Remove old dir; New one will be created w/ rsync
+rm -rf $SAVE_HOURLY_DIFF_BASE  # Remove old dir; New one will be created w/ rsync
+mkdir $SAVE_HOURLY_DIFF_BASE
 
-
-RSYNC_COMMAND="rsync  --stats --archive --compare-dest=$LAST_SAVED_DAILY_DIR $PRODUCTION_DIR $SAVE_HOURLY_DIFF_DIR"  # To test add --dry_run
+#=== Trailing slashes (/) are crucial for incremental to work
+RSYNC_COMMAND="rsync  --stats --archive --compare-dest=$LAST_SAVED_DAILY_DIR/ $PRODUCTION_DIR/ $SAVE_HOURLY_DIFF_DIR/"  # To test add --dry_run
 echo $RSYNC_COMMAND  # Just to test
 $RSYNC_COMMAND
 
@@ -20,8 +22,8 @@ $RSYNC_COMMAND
 find $SAVE_HOURLY_DIFF_DIR -depth -type d -empty -delete
 
 
-#=========== Future =========
-#=emove both directories and files older than certain # of days
+#==========
+#== Remove both directories and files older than certain # of days
 #==========
 DAYS_OLD=2
 echo "--- The following will be deleted ---"
